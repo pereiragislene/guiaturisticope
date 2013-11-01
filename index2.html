@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+     <script type="text/javascript"       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAchnk8f2euX14K-THAkzWIVc2IZG0Bbg&sensor=true"></script>
+     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+     <script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
+    </script>
+    <script type="text/javascript">
+      function initialize() {
+        var mapOptions = {
+           center: new google.maps.LatLng(-8.06197600, -34.88474200),
+          zoom: 9,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+
+
+         var json = (function () { 
+            var json = null; 
+			var pathname = location.protocol + "//" + location.host + "/js/db/teatro.js";
+			
+                $.ajax({ 
+                    'async': true, 
+                    'global': false, 
+                    'url': $(this).attr(url), 
+                    'dataType': "json", 
+                    'success': function (data) {
+                     json = data; } });
+					 console.log(pathname);
+					 console.log(location.protocol + "//" + location.host+"/js/db/teatro.js"); 
+                return json;})(); 
+
+				function base_url() {
+				   return location.protocol + "//" + location.host;
+				}
+
+
+for (var i = 0, length = json.length; i < length; i++) {
+  var data = json[i],
+      latLng = new google.maps.LatLng(data.te_latitude, data.te_longitude); 
+
+  // Creating a marker and putting it on the map
+  var marker = new google.maps.Marker({
+    position: latLng,
+    map: map,
+    title: data.title
+  });
+}
+
+var infoWindow = new google.maps.InfoWindow();
+
+// Attaching a click event to the current marker
+google.maps.event.addListener(marker, "click", function(e) {
+  infoWindow.setContent(data.description);
+  infoWindow.open(map, marker);
+});
+
+// Creating a closure to retain the correct data 
+//Note how I pass the current data in the loop into the closure (marker, data)
+(function(marker, data) {
+
+  // Attaching a click event to the current marker
+  google.maps.event.addListener(marker, "click", function(e) {
+    infoWindow.setContent(data.description);
+    infoWindow.open(map, marker);
+  });
+
+})(marker, data);
+
+
+
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"/>
+  </body>
+</html>
